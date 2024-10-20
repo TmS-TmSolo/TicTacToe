@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="./styles.css">
+    <style>
+        
+    </style>
+</head>
+<body>
+    <!-- Using any of the tools you've worked with so far, create a game of Tic-Tac-Toe.
+Create a Tic-Tac-Toe game grid using your HTML element of choice.
+When a cell in the grid is clicked, an X or O should appear in that spot depending on whose turn it is.
+A heading should say whether it is X's or O's turn and change with each move made.
+A button should be available to clear the grid and restart the game.
+When a player has won, or the board is full and the game results in a draw, a Bootstrap alert or similar Bootstrap component should appear across the screen announcing the winner. -->
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center">Tic-Tac-Toe</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h2 id="turn-indicator" class="text-center">It's X's turn</h2>
+            </div>
+        </div>
+        <div class="board" id="board">
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <button id="restart-btn" class="btn btn-primary">Restart Game</button>
+            </div>
+        </div>
+        <div id="game-result" class="alert alert-success mt-3 d-none" role="alert"></div>
+    </div>
+
+    <script src="./node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script>
+
+        /**
+         * Initializes the Tic-Tac-Toe game when the DOM content has finished loading.
+         * This function sets up event listeners and initializes the game state.
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            const cells = document.querySelectorAll('[data-cell]');
+            const turnIndicator = document.getElementById('turn-indicator');
+            const restartBtn = document.getElementById('restart-btn');
+            const gameResult = document.getElementById('game-result');
+            let currentPlayer = 'X';
+            let gameBoard = ['', '', '', '', '', '', '', '', ''];
+            let gameActive = true;
+
+            /**
+             * An array of winning combinations for the Tic-Tac-Toe game.
+             * Each inner array represents a set of three indices that would result in a win.
+             * The first three elements represent the row wins, the next three represent the column wins,
+             * and the last two represent the diagonal wins.
+             */
+            const winningCombos = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                [0, 4, 8], [2, 4, 6] // Diagonals
+            ];
+
+            /**
+             * Handles a click event on a cell in the Tic-Tac-Toe game board.
+             * If the cell is already occupied or the game is not active, the function returns without doing anything.
+             * Otherwise, it updates the game board with the current player's mark and updates the cell's text content.
+             * - The click event object.
+             */
+            function handleCellClick(e) {
+                const cell = e.target;
+                const cellIndex = Array.from(cells).indexOf(cell);
+                
+                if (gameBoard[cellIndex] !== '' || !gameActive) return;
+
+                gameBoard[cellIndex] = currentPlayer;
+                cell.textContent = currentPlayer;
+                
+                if (checkWin()) {
+                    endGame(false);
+                } else if (checkDraw()) {
+                    endGame(true);
+                } else {
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                    turnIndicator.textContent = `It's ${currentPlayer}'s turn`;
+                }
+            }
+
+            /**
+             * Checks if the current player has won the game by checking if their mark appears in any of the winning combinations.
+             *  True if the current player has won, false otherwise.
+             */
+            function checkWin() {
+                return winningCombos.some(combo => {
+                    return combo.every(index => gameBoard[index] === currentPlayer);
+                });
+            }
+            
+            /**
+             * Checks if the game is a draw by checking if all cells on the game board are occupied.
+             * True if the game is a draw, false otherwise.
+             */
+            function checkDraw() {
+                return gameBoard.every(cell => cell !== '');
+                }    /**
+             * Ends the current game by updating the game state and displaying the game result.
+             * Indicates whether the game resulted in a draw.
+             */
+            function endGame(isDraw) {
+                gameActive = false;
+                gameResult.classList.remove('d-none');
+                if (isDraw) {
+                    gameResult.textContent = "It's a draw!";
+                } else {
+                    gameResult.textContent = `Player ${currentPlayer} wins!`;
+                }
+            }
+
+            /**
+             * Restarts the game by resetting the current player to 'X' and the game board to an empty state.
+             */
+            function restartGame() {
+                currentPlayer = 'X';
+                gameBoard = ['', '', '', '', '', '', '', '', ''];
+                gameActive = true;
+                turnIndicator.textContent = "It's X's turn";
+                cells.forEach(cell => cell.textContent = '');
+                gameResult.classList.add('d-none');
+            }
+
+            /**
+             * Attaches click event listeners to each cell on the game board, and a click event listener to the restart button.
+             * When a cell is clicked, the `handleCellClick` function is called to handle the cell click event.
+             * When the restart button is clicked, the `restartGame` function is called to reset the game.
+             */
+            cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+            restartBtn.addEventListener('click', restartGame);
+        });
+    </script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
